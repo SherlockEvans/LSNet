@@ -9,7 +9,7 @@ from shutil import copy
 import shutil
 from typing import Dict, List, Union
 from tqdm import tqdm
-from i-focalloss import *
+from ifocalloss import *
 # from Lsnetwork import *
 
 
