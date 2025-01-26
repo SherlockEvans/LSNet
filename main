@@ -9,9 +9,9 @@ from shutil import copy
 import shutil
 from typing import Dict, List, Union
 from tqdm import tqdm
-from i-Focalloss import *
-# from models.AASIST import *
-from models.SSLmodel import *
+from i-focalloss import *
+# from Lsnetwork import *
+
 
 
 import torch
@@ -223,9 +223,7 @@ def main(args: argparse.Namespace) -> None:
             printout=False)
         print("Loss:{:.5f}, dev_eer: {:.3f}, dev_tdcf:{:.5f}\nDONE.".format(
             running_loss, dev_eer, dev_tdcf))
-        # writer.add_scalar("loss", running_loss, epoch)
-        # writer.add_scalar("dev_eer", dev_eer, epoch)
-        # writer.add_scalar("dev_tdcf", dev_tdcf, epoch)
+       
 
         best_dev_tdcf = min(dev_tdcf, best_dev_tdcf)
         if best_dev_eer >= dev_eer:
@@ -272,8 +270,7 @@ def main(args: argparse.Namespace) -> None:
             optimizer_swa.swap_swa_sgd()
             optimizer_swa.bn_update(trn_loader, model, device=device)
 
-        # writer.add_scalar("best_dev_eer", best_dev_eer, epoch)
-        # writer.add_scalar("best_dev_tdcf", best_dev_tdcf, epoch)
+       
 
     print("Start final evaluation")
     epoch += 1
