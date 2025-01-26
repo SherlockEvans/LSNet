@@ -461,9 +461,8 @@ def train_epoch(
     weight = torch.FloatTensor([0.1, 0.9]).to(device)
     criterion = nn.CrossEntropyLoss(weight=weight)
     mseloss = nn.MSELoss()
-    focalloss = FocalLoss()
-    focalloss2 = BinaryFocalLoss2()
-    focalloss4 = BinaryFocalLoss4()
+    focalloss = i-FocalLoss()
+    
 
 
     model = model.to(device)
@@ -477,66 +476,16 @@ def train_epoch(
         #     print("batch_x's shape:", batch_x.shape)  #torch.Size([12, 64600])
         batch_y = batch_y.view(-1).type(torch.int64).to(device)
         feat, batch_out = model(batch_x, Freq_aug=str_to_bool(config["freq_aug"]))
-        # print(batch_out)
-        # print(batch_out.shape)torch.Size([8, 2])
-        # print(batch_y)
-        # print(batch_y.shape)torch.Size([8])
 
-        if config["loss"] == "scokdwce":
+        if config["loss"] == "scokdifloss":
             t_feat, t_score = teachermodel(batch_x)
-            batch_loss = criterion(batch_out, batch_y)
-            # begin ours 核心！
+            batch_loss = focalloss(batch_out, batch_y)            
+
+            # begin ！
             beta = 0.5
             ts_loss = mseloss(t_score, batch_out)
-            batch_loss = beta * ts_loss + beta * batch_loss
+            batch_loss = beta * ts_loss + (1-beta) * batch_loss
             # end
-            optim.zero_grad()
-            batch_loss.backward()
-            optim.step()
-        elif config["loss"] == "wce":
-            batch_loss = criterion(batch_out, batch_y)
-
-            optim.zero_grad()
-            batch_loss.backward()
-            optim.step()
-        elif config["loss"] == "ocsoftmax":
-            ocsoftmax_loss, score = lossmodel(feat, batch_y)
-            batch_loss = ocsoftmax_loss
-
-            loss_optim.zero_grad()
-            optim.zero_grad()
-            batch_loss.backward()
-            loss_optim.step()
-            optim.step()
-        elif config["loss"] == "scokdwcedoc":
-            t_feat, t_score = teachermodel(batch_x)
-            ts_loss = mseloss(t_score, batch_out)
-            batch_loss1 = criterion(batch_out, batch_y)
-            docsoftmax_loss, score = lossmodel(feat, batch_y)
-            batch_loss = 0.4*batch_loss1 + (0.1 * docsoftmax_loss) + 0.5*ts_loss
-
-            loss_optim.zero_grad()
-            optim.zero_grad()
-            batch_loss.backward()
-            loss_optim.step()
-            optim.step()
-
-        elif config["loss"] == "floss":
-            batch_loss = focalloss(batch_out, batch_y)
-
-            optim.zero_grad()
-            batch_loss.backward()
-            optim.step()
-        elif config["loss"] == "floss2":
-            batch_loss = focalloss2(batch_out, batch_y)
-
-            optim.zero_grad()
-            batch_loss.backward()
-            optim.step()
-
-        elif config["loss"] == "floss4":
-            batch_loss = focalloss4(batch_out, batch_y)
-
             optim.zero_grad()
             batch_loss.backward()
             optim.step()
