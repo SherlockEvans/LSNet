@@ -13,7 +13,7 @@ class I-FocalLoss(nn.Module):
         labels = labels.view(-1, 1)
         print("labels:",labels)
         print(labels.shape)
-        # 开始计算
+        # 开始
         # log = torch.log(preds)
         # print("log:",log)
 
